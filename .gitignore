@@ -1,0 +1,20 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.hypothesis/
+*.egg-info/
+.venv/
+build/
+dist/
+
+# Raw and generated data
+data/
+runs/
+*.csv.gz
+*.parquet
+*.zip
+
+# Local editor and OS files
+.DS_Store
+.idea/
+.vscode/

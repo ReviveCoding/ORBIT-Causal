@@ -1,0 +1,19 @@
+{
+  "baseline_calibration_rmse_recomputed": 0.009470472213286103,
+  "baseline_value_recomputed": 0.005643564219054696,
+  "bootstrap_draws_regenerated": 4000,
+  "bootstrap_max_absolute_error": 6.182120787512346e-15,
+  "calibration_superiority_upper_recomputed": -0.0031402435428698645,
+  "candidate_calibration_rmse_recomputed": 0.0050883992851509,
+  "candidate_value_recomputed": 0.0060410157508602735,
+  "holdout_rows": 2000000,
+  "prior_holdout_overlap": 0,
+  "row_ids_sha256": "0c0316d2091404b376fd361244d3c29c30968c151c4ec4c20b7e7e867b124a91",
+  "run_seal_sha256": "965afd52f3649f4d58c98217286c8a4bb38a5661cbac6e2421a8d6211b2a5fa4",
+  "schema": "orbit-causal-v039-independent-replay-audit-v1",
+  "sealed_files_verified": 7,
+  "status": "PASS",
+  "unique_row_ids": 2000000,
+  "value_difference_recomputed": 0.0003974515318055775,
+  "value_noninferiority_lower_recomputed": 0.00014757137485218235
+}

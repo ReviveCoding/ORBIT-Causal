@@ -1,0 +1,9 @@
+{
+  "bootstrap_draws.csv": "ce030e1badfcb254ed02fff175ffb0dc6fb90580c233aea513ce5f91c2805364",
+  "calibration_table.csv": "b1ebb2171cd524992f14979b286b1668ba1804ff259cba5bd845fc99dca465f8",
+  "evaluation_replay.csv.gz": "980c9d015583f54d6d6c6fbb317191ccdef081f4e93ae868037ab5e2cafb493c",
+  "frozen_candidate_portfolio.joblib": "047dbfd1f0ae48418b0de15e6f5da299a5d6fb575ecf81790afacf7a0a5df004",
+  "metrics.json": "0683ac20c1824a00e09f730ef39ff9426e4dda446a96197efc55cf35cb49cba0",
+  "selection_contract.json": "6df2b1271058421ed3f4e3640678e421468b0de7ec1c934b967c12014cc67967",
+  "slice_metrics.csv": "924e36dd08e7da790e0afb2ce961fbcbb0bfd4ae1c009514a690771c9ca4625d"
+}

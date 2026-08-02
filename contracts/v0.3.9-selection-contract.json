@@ -1,0 +1,87 @@
+{
+  "candidate": {
+    "artifact_retraining_permitted": false,
+    "baseline": "C3",
+    "effect": "v0.3.8 positive-affine(0.7*C1 + 0.3*C5)",
+    "primary": "E7"
+  },
+  "co_primary_release_rules": {
+    "calibration_superiority": {
+      "estimand": "RMSE_E7_minus_RMSE_C3",
+      "margin": 0.0,
+      "pass": "one_sided_95pct_upper_bound_strictly_less_than_zero"
+    },
+    "value_noninferiority": {
+      "estimand": "E7_minus_C3_AIPW_policy_value_at_20pct_capacity",
+      "margin": -0.00025,
+      "pass": "one_sided_95pct_lower_bound_strictly_greater_than_margin"
+    }
+  },
+  "data_roles": {
+    "holdout": {
+      "intersection_counts_with_prior_windows": [
+        0,
+        0,
+        0
+      ],
+      "offset": 750000,
+      "priority_rank_window": [
+        750000,
+        2750000
+      ],
+      "role": "single_use_locked_release_evaluation_only",
+      "row_ids_sha256": "0c0316d2091404b376fd361244d3c29c30968c151c4ec4c20b7e7e867b124a91",
+      "rows": 2000000
+    },
+    "prior_combined_row_ids_sha256": "a5ba1465c221049fa2cbc7ac1d5522852cc678df9ff38fe0483d38c051d1c69d",
+    "prior_windows": [
+      {
+        "offset": 0,
+        "row_ids_sha256": "3aba761fb741590b000686cf7496fad346bcae8c08aceffd2ac4ac79fae313a2",
+        "rows": 250000
+      },
+      {
+        "offset": 250000,
+        "row_ids_sha256": "714807c3a85030bc77c63f4fa176e43f87048f9c1ef49a83d2c03f8dedef16fc",
+        "rows": 250000
+      },
+      {
+        "offset": 500000,
+        "row_ids_sha256": "11fdb77ced92dd35758f3d314e87b03e5f54a7c47db7681a18617731baaf1796",
+        "rows": 250000
+      }
+    ]
+  },
+  "evaluation": {
+    "bootstrap_replicates": 4000,
+    "calibration_bins": 10,
+    "calibration_inference": "paired_cluster_bootstrap_of_empirical_influence_function",
+    "capacity": 0.2,
+    "cluster": "exact_pretreatment_profile",
+    "decision_rule": "intersection_union_both_co_primary_gates_must_pass",
+    "one_sided_alpha": 0.05
+  },
+  "frozen_artifact": {
+    "parent_selection_contract_sha256": "be16c63128760b4f24d1bfc461a9d97e760b221c02b6b9eb56fc35b57bd21412",
+    "path_role": "frozen_v038_E7_C3_portfolio",
+    "sha256": "047dbfd1f0ae48418b0de15e6f5da299a5d6fb575ecf81790afacf7a0a5df004",
+    "size_bytes": 5047429
+  },
+  "guardrails": {
+    "candidate_standalone_two_sided_95pct_ci_lower_gt": 0.0,
+    "max_artifact_size_bytes": 100000000,
+    "max_inference_ms_per_1000": 100.0,
+    "minimum_slice_difference": -0.005
+  },
+  "implementation": {
+    "config_sha256": "a059e99581f5a04866cdc09b1a92bd9e4e941a6054abcccd590d4b60c6667ac3",
+    "package_fingerprint": "153f4a919c08b33ffa878200e8080ccda1ef3b3a182975494ebe456f03773ba3",
+    "script_sha256": "e9d0294b96ae8e0b2ac7ec365d36914aeb2491e287975854f55197d89aaa8b0e"
+  },
+  "schema": "orbit-causal-v039-locked-noninferiority-v1",
+  "source": {
+    "rows": 13979592,
+    "sha256": "2716e1bf0fd157a93b5bf86924d9088419dfbac2022c6cd90030220634f616dc",
+    "size_bytes": 311422618
+  }
+}

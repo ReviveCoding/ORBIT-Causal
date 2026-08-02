@@ -1,0 +1,39 @@
+{
+  "schema_version": "1.0",
+  "run_name": "criteo_v2",
+  "seed": 20260717,
+  "data": {
+    "kind": "criteo_v2",
+    "outcome": "visit",
+    "treatment": "treatment",
+    "exposure": "exposure",
+    "feature_columns": ["f0", "f1", "f2", "f3", "f4", "f5", "f6", "f7", "f8", "f9", "f10", "f11"],
+    "categorical_columns": []
+  },
+  "split": {"train": 0.60, "calibration": 0.15, "policy": 0.10, "final_test": 0.15},
+  "model": {
+    "max_iter": 150,
+    "max_depth": 6,
+    "learning_rate": 0.06,
+    "min_samples_leaf": 100,
+    "dr_folds": 3,
+    "ensemble_size": 3,
+    "categorical_hash_bins": 128
+  },
+  "policy": {
+    "primary_capacity": 0.20,
+    "scenario_capacities": [0.05, 0.10, 0.20, 0.30, 0.50, 1.0],
+    "risk_multipliers": [0.0, 0.25, 0.5, 1.0],
+    "intervention_cost": 0.0,
+    "max_abstention": 0.35
+  },
+  "evaluation": {
+    "bootstrap_replicates": 500,
+    "calibration_bins": 10,
+    "alpha": 0.05,
+    "slice_noninferiority_margin": 0.005,
+    "minimum_slice_rows": 100,
+    "max_inference_ms_per_1000": 100.0,
+    "max_bundle_size_bytes": 100000000
+  }
+}

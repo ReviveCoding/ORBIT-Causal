@@ -1,0 +1,62 @@
+{
+  "candidate": {
+    "baseline": "C3",
+    "effect": "positive-affine(0.7*C1 + 0.3*C5)",
+    "primary": "E7",
+    "selection_evidence": "two-direction 250K development cross-fit",
+    "weights": {
+      "C1": 0.7,
+      "C5": 0.3
+    }
+  },
+  "development": {
+    "partition": {
+      "affine_calibration": 75000,
+      "model_train": 350000,
+      "rsec_calibration": 75000
+    },
+    "row_ids_sha256": "2c7a9dd1cb34668705e49b5279b9f1f2dd9429650b77f2ef0e3a761fba680246",
+    "rows": 500000,
+    "windows": [
+      [
+        0,
+        250000
+      ],
+      [
+        250000,
+        250000
+      ]
+    ]
+  },
+  "evaluation": {
+    "alpha": 0.05,
+    "bootstrap_replicates": 2000,
+    "capacity": 0.2,
+    "cluster": "pretreatment_profile"
+  },
+  "holdout": {
+    "offset": 500000,
+    "role": "locked_release_evaluation_only",
+    "row_ids_sha256": "11fdb77ced92dd35758f3d314e87b03e5f54a7c47db7681a18617731baaf1796",
+    "rows": 250000
+  },
+  "implementation": {
+    "config_sha256": "a059e99581f5a04866cdc09b1a92bd9e4e941a6054abcccd590d4b60c6667ac3",
+    "package_fingerprint": "3428abd9f1373016da8b131f92aac83d1420d9877956b4ef77b7094b8f196832",
+    "script_sha256": "ab0b3390764334425bf5723398f8ab5ddd9debf33fac221360015e56de7ced2c"
+  },
+  "release_rules": {
+    "calibration_ratio_max": 1.1,
+    "max_bundle_size_bytes": 100000000,
+    "max_inference_ms_per_1000": 100.0,
+    "paired_improvement_ci_lower_gt": 0.0,
+    "slice_value_regression_max": 0.005,
+    "standalone_aipw_ci_lower_gt": 0.0
+  },
+  "schema": "orbit-causal-locked-development-holdout-v1",
+  "source": {
+    "rows": 13979592,
+    "sha256": "2716e1bf0fd157a93b5bf86924d9088419dfbac2022c6cd90030220634f616dc",
+    "size_bytes": 311422618
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "evidence_inventory_sha256": "e67e185164ddad5fb42fcddba36da8a356c3aa768bbfba5cc623a153c217f9f3",
+  "frozen_artifact_sha256": "047dbfd1f0ae48418b0de15e6f5da299a5d6fb575ecf81790afacf7a0a5df004",
+  "platform": "Linux-6.12.13-x86_64-with-glibc2.39",
+  "schema": "orbit-causal-v039-locked-noninferiority-v1",
+  "selection_contract_sha256": "6df2b1271058421ed3f4e3640678e421468b0de7ec1c934b967c12014cc67967",
+  "verdict": "RELEASE_ELIGIBLE"
+}
