@@ -1,5 +1,7 @@
 # ORBIT-Causal
 
+[![CI](https://github.com/ReviveCoding/ORBIT-Causal/actions/workflows/ci.yml/badge.svg)](https://github.com/ReviveCoding/ORBIT-Causal/actions/workflows/ci.yml)
+
 **Orthogonal, Risk-Bounded Intervention Targeting**
 
 ORBIT-Causal is a reproducible offline causal ML benchmark for heterogeneous treatment-effect estimation, calibrated uplift scoring, and capacity-constrained intervention targeting. The final v0.3.9 release evaluates a frozen candidate once on a disjoint 2,000,000-row holdout from the randomized Criteo Uplift v2.1 dataset.
