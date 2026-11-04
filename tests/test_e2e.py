@@ -300,7 +300,7 @@ class EndToEndTests(unittest.TestCase):
                     expected_sha256=operational["bundle_sha256"],
                     expected_manifest_sha256=operational["bundle_manifest_sha256"],
                 )
-                record = {column: 0 for column in config.data.feature_columns}
+                record = dict.fromkeys(config.data.feature_columns, 0)
                 scored = service.score_records([record])
                 self.assertEqual(len(scored), 1)
                 self.assertIn(scored[0]["decision"], {-1, 0, 1})
