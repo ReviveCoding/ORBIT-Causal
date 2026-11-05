@@ -34,8 +34,8 @@ from .config import ProjectConfig
 from .data import (
     CRITEO_V21_EXPECTED_ROWS,
     _categorical_token,
-    _validate_sample_window,
     _validate_criteo_contents,
+    _validate_sample_window,
     assign_splits,
     authenticated_criteo_snapshot,
     dataset_fingerprint,
@@ -52,9 +52,9 @@ from .metrics import (
     bootstrap_mean,
     causal_calibration_table,
     incremental_policy_scores,
+    paired_bootstrap_mean,
     policy_regret,
     policy_value_curve,
-    paired_bootstrap_mean,
     qini_coefficient,
     set_valued_action_metrics,
     sqrt_pehe,
@@ -832,15 +832,9 @@ def _run_experiment_body(
     comparison["paired_baseline_improvement_standard_error"] = float("nan")
     primary_mask = comparison["candidate_id"] == PRIMARY_CANDIDATE
     comparison.loc[primary_mask, "paired_baseline_id"] = SUPERIORITY_BASELINE
-    comparison.loc[primary_mask, "paired_baseline_improvement"] = (
-        primary_paired.value
-    )
-    comparison.loc[primary_mask, "paired_baseline_improvement_ci_lower"] = (
-        primary_paired.lower
-    )
-    comparison.loc[primary_mask, "paired_baseline_improvement_ci_upper"] = (
-        primary_paired.upper
-    )
+    comparison.loc[primary_mask, "paired_baseline_improvement"] = primary_paired.value
+    comparison.loc[primary_mask, "paired_baseline_improvement_ci_lower"] = primary_paired.lower
+    comparison.loc[primary_mask, "paired_baseline_improvement_ci_upper"] = primary_paired.upper
     comparison.loc[primary_mask, "paired_baseline_improvement_standard_error"] = (
         primary_paired.standard_error
     )
@@ -879,16 +873,10 @@ def _run_experiment_body(
     failure_cases["failure_definition"] = failure_definition
     atomic_csv(output_dir / "failure_cases.csv", failure_cases)
 
-    production_row = comparison.loc[
-        comparison["candidate_id"] == PRIMARY_CANDIDATE
-    ].iloc[0]
-    baseline_row = comparison.loc[
-        comparison["candidate_id"] == SUPERIORITY_BASELINE
-    ].iloc[0]
+    production_row = comparison.loc[comparison["candidate_id"] == PRIMARY_CANDIDATE].iloc[0]
+    baseline_row = comparison.loc[comparison["candidate_id"] == SUPERIORITY_BASELINE].iloc[0]
     primary_slices = slices.loc[slices["candidate_id"] == PRIMARY_CANDIDATE].set_index("slice")
-    baseline_slices = slices.loc[
-        slices["candidate_id"] == SUPERIORITY_BASELINE
-    ].set_index("slice")
+    baseline_slices = slices.loc[slices["candidate_id"] == SUPERIORITY_BASELINE].set_index("slice")
     aligned_slices = primary_slices.join(
         baseline_slices,
         how="inner",
@@ -948,8 +936,7 @@ def _run_experiment_body(
     logger.event("artifact_publication_completed")
     bundle_size_bytes = bundle_path.stat().st_size
     operational_gate = bool(
-        0 <= production_row["inference_ms_per_1000"]
-        <= config.evaluation.max_inference_ms_per_1000
+        0 <= production_row["inference_ms_per_1000"] <= config.evaluation.max_inference_ms_per_1000
         and bundle_size_bytes <= config.evaluation.max_bundle_size_bytes
         and np.isfinite(production_row["training_seconds"])
         and production_row["training_seconds"] >= 0
@@ -1080,9 +1067,7 @@ def _run_experiment_body(
             "source_validation": source_validation,
             "selection_contract_sha256": selection_contract_hash,
             "sample_offset": sample_offset,
-            "sample_row_ids_sha256": sample_row_ids_sha256(
-                frame["source_row_id"].to_numpy()
-            ),
+            "sample_row_ids_sha256": sample_row_ids_sha256(frame["source_row_id"].to_numpy()),
         },
     )
     atomic_json(
@@ -1105,9 +1090,7 @@ def _run_experiment_body(
                 "max_rows": max_rows,
                 "sample_offset": sample_offset,
                 "sample_row_count": len(frame),
-                "sample_row_ids_sha256": sample_row_ids_sha256(
-                    frame["source_row_id"].to_numpy()
-                ),
+                "sample_row_ids_sha256": sample_row_ids_sha256(frame["source_row_id"].to_numpy()),
             },
             "split_contract": asdict(config.split),
             "policy_contract": asdict(config.policy),

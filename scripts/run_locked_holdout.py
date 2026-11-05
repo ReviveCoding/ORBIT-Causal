@@ -31,7 +31,6 @@ from orbit_causal.metrics import incremental_policy_scores
 from orbit_causal.models import doubly_robust_score
 from orbit_causal.policy import capacity_policy, policy_treatment_indicator
 
-
 SCHEMA = "orbit-causal-v039-locked-noninferiority-v1"
 PRIMARY = "E7"
 BASELINE = "C3"
@@ -112,10 +111,10 @@ def row_contract() -> dict[str, object]:
             }
         )
     prior_all = np.concatenate(prior_ids)
-    holdout = deterministic_sample_row_ids(
-        CRITEO_V21_EXPECTED_ROWS, HOLDOUT_ROWS, HOLDOUT_OFFSET
-    )
-    intersections = [int(np.intersect1d(ids, holdout, assume_unique=True).size) for ids in prior_ids]
+    holdout = deterministic_sample_row_ids(CRITEO_V21_EXPECTED_ROWS, HOLDOUT_ROWS, HOLDOUT_OFFSET)
+    intersections = [
+        int(np.intersect1d(ids, holdout, assume_unique=True).size) for ids in prior_ids
+    ]
     if any(intersections) or np.unique(prior_all).size != len(prior_all):
         raise RuntimeError("locked holdout overlaps prior ORBIT evaluation windows")
     return {
@@ -273,9 +272,7 @@ def run(args: argparse.Namespace) -> None:
     candidate_calibration = calibration_rmse_linearization(
         candidate_effect, gamma, CALIBRATION_BINS
     )
-    baseline_calibration = calibration_rmse_linearization(
-        baseline_effect, gamma, CALIBRATION_BINS
-    )
+    baseline_calibration = calibration_rmse_linearization(baseline_effect, gamma, CALIBRATION_BINS)
     calibration_difference = candidate_calibration.error - baseline_calibration.error
     clusters = profile_ids(holdout, config.data).to_numpy()
 
@@ -289,9 +286,7 @@ def run(args: argparse.Namespace) -> None:
         config.seed + 903,
     )
     value_difference = float(np.mean(candidate_scores - baseline_scores))
-    value_one_sided = interval(
-        draws["candidate_minus_baseline"], ONE_SIDED_ALPHA, two_sided=False
-    )
+    value_one_sided = interval(draws["candidate_minus_baseline"], ONE_SIDED_ALPHA, two_sided=False)
     calibration_one_sided = interval(
         draws["candidate_minus_baseline_calibration_rmse"],
         ONE_SIDED_ALPHA,
@@ -299,9 +294,7 @@ def run(args: argparse.Namespace) -> None:
     )
     candidate_two_sided = interval(draws["candidate_value"], 0.05, two_sided=True)
     baseline_two_sided = interval(draws["baseline_value"], 0.05, two_sided=True)
-    difference_two_sided = interval(
-        draws["candidate_minus_baseline"], 0.05, two_sided=True
-    )
+    difference_two_sided = interval(draws["candidate_minus_baseline"], 0.05, two_sided=True)
     calibration_two_sided = interval(
         draws["candidate_minus_baseline_calibration_rmse"], 0.05, two_sided=True
     )
@@ -324,8 +317,7 @@ def run(args: argparse.Namespace) -> None:
 
     gates = {
         "G0_integrity_and_disjointness": True,
-        "G1_value_noninferiority": value_one_sided["lower"]
-        > VALUE_NONINFERIORITY_MARGIN,
+        "G1_value_noninferiority": value_one_sided["lower"] > VALUE_NONINFERIORITY_MARGIN,
         "G2_calibration_superiority": calibration_one_sided["upper"]
         < CALIBRATION_SUPERIORITY_MARGIN,
         "G3_candidate_standalone_value": candidate_two_sided["lower"] > 0.0,

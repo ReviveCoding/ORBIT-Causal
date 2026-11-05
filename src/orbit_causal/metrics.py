@@ -45,12 +45,15 @@ def aipw_policy_scores(
     mu1: np.ndarray,
     propensity: float,
 ) -> np.ndarray:
-    y, t, pi, mu0, mu1 = _aligned_finite_arrays(outcome, treatment, policy, mu0, mu1)
-    y = y.astype(float)
-    if not np.isin(t, [0, 1]).all() or not np.isin(pi, [0, 1]).all():
+    """Estimate policy value with one AIPW score per observation."""
+    observed_outcome, observed_treatment, policy_action, mu0, mu1 = _aligned_finite_arrays(
+        outcome, treatment, policy, mu0, mu1
+    )
+    observed_outcome = observed_outcome.astype(float)
+    if not np.isin(observed_treatment, [0, 1]).all() or not np.isin(policy_action, [0, 1]).all():
         raise ValueError("treatment and policy must be binary")
-    t = t.astype(int)
-    pi = pi.astype(int)
+    observed_treatment = observed_treatment.astype(int)
+    policy_action = policy_action.astype(int)
     mu0 = mu0.astype(float)
     mu1 = mu1.astype(float)
     if (
@@ -61,12 +64,17 @@ def aipw_policy_scores(
         or propensity >= 1
     ):
         raise ValueError("propensity must be finite and in (0, 1)")
-    p = float(np.clip(propensity, 0.02, 0.98))
-    mu_pi = np.where(pi == 1, mu1, mu0)
-    observed_mu = np.where(t == 1, mu1, mu0)
-    observed_probability = np.where(t == 1, p, 1 - p)
-    matched = (t == pi).astype(float)
-    return mu_pi + matched * (y - observed_mu) / observed_probability
+    clipped_propensity = float(np.clip(propensity, 0.02, 0.98))
+    target_action_mean = np.where(policy_action == 1, mu1, mu0)
+    observed_action_mean = np.where(observed_treatment == 1, mu1, mu0)
+    observed_action_probability = np.where(
+        observed_treatment == 1, clipped_propensity, 1 - clipped_propensity
+    )
+    action_matches = (observed_treatment == policy_action).astype(float)
+    return (
+        target_action_mean
+        + action_matches * (observed_outcome - observed_action_mean) / observed_action_probability
+    )
 
 
 def incremental_policy_scores(
@@ -77,9 +85,12 @@ def incremental_policy_scores(
     mu1: np.ndarray,
     propensity: float,
 ) -> np.ndarray:
-    value = aipw_policy_scores(outcome, treatment, policy, mu0, mu1, propensity)
-    never = aipw_policy_scores(outcome, treatment, np.zeros_like(policy), mu0, mu1, propensity)
-    return value - never
+    """Return per-observation gains over a no-treatment policy."""
+    policy_value_scores = aipw_policy_scores(outcome, treatment, policy, mu0, mu1, propensity)
+    no_treatment_scores = aipw_policy_scores(
+        outcome, treatment, np.zeros_like(policy), mu0, mu1, propensity
+    )
+    return policy_value_scores - no_treatment_scores
 
 
 def bootstrap_mean(
@@ -210,11 +221,13 @@ def policy_value_curve(
 def qini_coefficient(
     effect: np.ndarray, outcome: np.ndarray, treatment: np.ndarray, propensity: float
 ) -> float:
-    effect, y, t = _aligned_finite_arrays(effect, outcome, treatment)
-    y = y.astype(float)
-    if not np.isin(t, [0, 1]).all():
+    effect, observed_outcome, observed_treatment = _aligned_finite_arrays(
+        effect, outcome, treatment
+    )
+    observed_outcome = observed_outcome.astype(float)
+    if not np.isin(observed_treatment, [0, 1]).all():
         raise ValueError("treatment must be binary")
-    t = t.astype(int)
+    observed_treatment = observed_treatment.astype(int)
     if (
         not isinstance(propensity, Real)
         or isinstance(propensity, bool)
@@ -223,16 +236,20 @@ def qini_coefficient(
         or propensity >= 1
     ):
         raise ValueError("propensity must be finite and in (0, 1)")
-    p = float(np.clip(propensity, 0.02, 0.98))
-    contribution = t * y / p - (1 - t) * y / (1 - p)
+    clipped_propensity = float(np.clip(propensity, 0.02, 0.98))
+    contribution = observed_treatment * observed_outcome / clipped_propensity - (
+        1 - observed_treatment
+    ) * observed_outcome / (1 - clipped_propensity)
     ordered = pd.DataFrame({"effect": effect, "contribution": contribution}).sort_values(
         "effect", ascending=False, kind="mergesort"
     )
     tie_groups = ordered.groupby("effect", sort=False)["contribution"].agg(["size", "sum"])
     curve = np.concatenate([[0.0], tie_groups["sum"].cumsum().to_numpy() / len(effect)])
-    x = np.concatenate([[0.0], tie_groups["size"].cumsum().to_numpy() / len(effect)])
-    random_line = x * curve[-1]
-    return float(np.trapezoid(curve - random_line, x))
+    targeted_fraction = np.concatenate(
+        [[0.0], tie_groups["size"].cumsum().to_numpy() / len(effect)]
+    )
+    random_targeting_curve = targeted_fraction * curve[-1]
+    return float(np.trapezoid(curve - random_targeting_curve, targeted_fraction))
 
 
 def causal_calibration_table(

@@ -10,7 +10,6 @@ import joblib
 import numpy as np
 import pandas as pd
 
-
 TOTAL_ROWS = 13_979_592
 HOLDOUT_OFFSET = 750_000
 HOLDOUT_ROWS = 2_000_000
@@ -63,9 +62,9 @@ def calibration(effect: np.ndarray, gamma: np.ndarray) -> tuple[float, np.ndarra
     squared = float(np.dot(counts / len(effect), gaps**2))
     error = float(np.sqrt(squared))
     residual = effect - gamma
-    influence = (
-        gaps[codes] ** 2 - squared + 2.0 * gaps[codes] * (residual - gaps[codes])
-    ) / (2.0 * error)
+    influence = (gaps[codes] ** 2 - squared + 2.0 * gaps[codes] * (residual - gaps[codes])) / (
+        2.0 * error
+    )
     influence -= influence.mean()
     return error, influence
 
@@ -139,7 +138,10 @@ def run(output: Path, report: Path) -> None:
         if sha256_file(output / relative) != expected:
             raise AssertionError(f"inventory mismatch: {relative}")
     artifact = output / "frozen_candidate_portfolio.joblib"
-    if sha256_file(artifact) != ARTIFACT_SHA256 or sha256_file(artifact) != seal["frozen_artifact_sha256"]:
+    if (
+        sha256_file(artifact) != ARTIFACT_SHA256
+        or sha256_file(artifact) != seal["frozen_artifact_sha256"]
+    ):
         raise AssertionError("frozen artifact mismatch")
 
     replay = pd.read_csv(output / "evaluation_replay.csv.gz")
@@ -162,9 +164,12 @@ def run(output: Path, report: Path) -> None:
     treatment = replay["treatment"].to_numpy(int)
     mu0 = replay["mu0"].to_numpy(float)
     mu1 = replay["mu1"].to_numpy(float)
-    gamma = mu1 - mu0 + treatment * (outcome - mu1) / propensity - (
-        1 - treatment
-    ) * (outcome - mu0) / (1 - propensity)
+    gamma = (
+        mu1
+        - mu0
+        + treatment * (outcome - mu1) / propensity
+        - (1 - treatment) * (outcome - mu0) / (1 - propensity)
+    )
     if not np.allclose(gamma, replay["gamma"].to_numpy(float), rtol=0.0, atol=2e-15):
         raise AssertionError("row-level doubly robust effect score mismatch")
     candidate_scores = incremental_scores(
@@ -190,12 +195,8 @@ def run(output: Path, report: Path) -> None:
     ):
         raise AssertionError("row-level AIPW replay mismatch")
 
-    candidate_error, candidate_if = calibration(
-        replay["candidate_effect"].to_numpy(float), gamma
-    )
-    baseline_error, baseline_if = calibration(
-        replay["baseline_effect"].to_numpy(float), gamma
-    )
+    candidate_error, candidate_if = calibration(replay["candidate_effect"].to_numpy(float), gamma)
+    baseline_error, baseline_if = calibration(replay["baseline_effect"].to_numpy(float), gamma)
     assert_close(candidate_scores.mean(), metrics["candidate_value"])
     assert_close(baseline_scores.mean(), metrics["baseline_value"])
     assert_close((candidate_scores - baseline_scores).mean(), metrics["value_difference"])
@@ -229,9 +230,7 @@ def run(output: Path, report: Path) -> None:
     value_lower = float(np.quantile(regenerated[:, 2], 0.05))
     calibration_upper = float(np.quantile(regenerated[:, 3], 0.95))
     assert_close(value_lower, metrics["value_noninferiority_one_sided_95pct_lower"])
-    assert_close(
-        calibration_upper, metrics["calibration_superiority_one_sided_95pct_upper"]
-    )
+    assert_close(calibration_upper, metrics["calibration_superiority_one_sided_95pct_upper"])
     audit = {
         "schema": "orbit-causal-v039-independent-replay-audit-v1",
         "status": "PASS",
