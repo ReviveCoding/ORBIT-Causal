@@ -45,15 +45,12 @@ def aipw_policy_scores(
     mu1: np.ndarray,
     propensity: float,
 ) -> np.ndarray:
-    """Compute per-observation AIPW scores for the absolute policy value."""
-    observed_outcome, observed_treatment, policy_action, mu0, mu1 = (
-        _aligned_finite_arrays(outcome, treatment, policy, mu0, mu1)
+    """Estimate policy value with one AIPW score per observation."""
+    observed_outcome, observed_treatment, policy_action, mu0, mu1 = _aligned_finite_arrays(
+        outcome, treatment, policy, mu0, mu1
     )
     observed_outcome = observed_outcome.astype(float)
-    if (
-        not np.isin(observed_treatment, [0, 1]).all()
-        or not np.isin(policy_action, [0, 1]).all()
-    ):
+    if not np.isin(observed_treatment, [0, 1]).all() or not np.isin(policy_action, [0, 1]).all():
         raise ValueError("treatment and policy must be binary")
     observed_treatment = observed_treatment.astype(int)
     policy_action = policy_action.astype(int)
@@ -76,9 +73,7 @@ def aipw_policy_scores(
     action_matches = (observed_treatment == policy_action).astype(float)
     return (
         target_action_mean
-        + action_matches
-        * (observed_outcome - observed_action_mean)
-        / observed_action_probability
+        + action_matches * (observed_outcome - observed_action_mean) / observed_action_probability
     )
 
 
@@ -90,10 +85,8 @@ def incremental_policy_scores(
     mu1: np.ndarray,
     propensity: float,
 ) -> np.ndarray:
-    """Compute per-observation policy gains relative to treating nobody."""
-    policy_value_scores = aipw_policy_scores(
-        outcome, treatment, policy, mu0, mu1, propensity
-    )
+    """Return per-observation gains over a no-treatment policy."""
+    policy_value_scores = aipw_policy_scores(outcome, treatment, policy, mu0, mu1, propensity)
     no_treatment_scores = aipw_policy_scores(
         outcome, treatment, np.zeros_like(policy), mu0, mu1, propensity
     )
@@ -247,12 +240,10 @@ def qini_coefficient(
     contribution = observed_treatment * observed_outcome / clipped_propensity - (
         1 - observed_treatment
     ) * observed_outcome / (1 - clipped_propensity)
-    ordered = pd.DataFrame(
-        {"effect": effect, "contribution": contribution}
-    ).sort_values("effect", ascending=False, kind="mergesort")
-    tie_groups = ordered.groupby("effect", sort=False)["contribution"].agg(
-        ["size", "sum"]
+    ordered = pd.DataFrame({"effect": effect, "contribution": contribution}).sort_values(
+        "effect", ascending=False, kind="mergesort"
     )
+    tie_groups = ordered.groupby("effect", sort=False)["contribution"].agg(["size", "sum"])
     curve = np.concatenate([[0.0], tie_groups["sum"].cumsum().to_numpy() / len(effect)])
     targeted_fraction = np.concatenate(
         [[0.0], tie_groups["size"].cumsum().to_numpy() / len(effect)]
